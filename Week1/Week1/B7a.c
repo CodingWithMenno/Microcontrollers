@@ -11,6 +11,7 @@
 #include <util/delay.h>
 #include <stdbool.h>
 
+//Alle states in het systeem
 typedef enum 
 {
 	START_STATE,
@@ -20,6 +21,7 @@ typedef enum
 	END_STATE
 } systemState;
 
+//Alle mogelijke events in het systeem die de huidige state kan veranderen naar een andere state 
 typedef enum
 {
 	D7_EVENT,
@@ -35,12 +37,19 @@ void exitState(systemState);
 
 int main(void)
 {	
+	//Alle leds op rij D als output zetten
     DDRD = 0b11111111;
 	
+	//De eerste state waar het systeem in komt is de start state
 	systemState currentState = START_STATE;
 	systemEvent newEvent = NULL;
+	
+	//De eerste state initialiseren
+	init(currentState);
+	
     while (1) 
     {
+		//Het event ophalen (als er geen nieuw event is word NULL terug gegeven)
 		newEvent = getCurrentEvent();
 		
 		if (newEvent == NULL)
@@ -48,14 +57,15 @@ int main(void)
 			continue;
 		}
 		
+		//Handelen a.d.h.v. de huidige state
 		switch(currentState)
 		{
 			case START_STATE:
-				if (newEvent == D6_EVENT)
+				if (newEvent == D6_EVENT) //Wanneer de event gelijk is aan het nieuwe event word er van state veranderd
 				{
-					exitState(currentState);
-					currentState = S1_STATE;
-					init(currentState);
+					exitState(currentState); //Eerst word de huidige state afgesloten door de exitState() methode aan te roepen
+					currentState = S1_STATE; //Vervolgens word de huidige state aangepast
+					init(currentState); //En als laatste word de nieuwe state geinitialiseerd
 				} else if (newEvent == D5_EVENT)
 				{
 					exitState(currentState);
@@ -122,6 +132,7 @@ int main(void)
 	return 1;
 }
 
+//Geeft het huidige event terug als deze er is
 systemEvent getCurrentEvent()
 {
 	if(PIND & 0x40){
@@ -136,6 +147,7 @@ systemEvent getCurrentEvent()
 	
 }
 
+//Initialiseerd de state die is meegegeven door de actie uit te voeren die bij het initialeseren van deze state hoort
 void init(systemState state)
 {
 	switch(state)
@@ -159,6 +171,7 @@ void init(systemState state)
 	
 }
 
+//Sluit de meegegeven state af door de actie uit te voeren die bij het afsluiten van deze state hoort
 void exitState(systemState state)
 {
 	switch(state)
