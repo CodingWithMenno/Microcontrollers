@@ -3,29 +3,29 @@ Week1.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  00000134  2**0
+  0 .data         00000000  00800100  00800100  00000156  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000000e0  00000000  00000000  00000054  2**1
+  1 .text         00000102  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  00000134  2**0
+  2 .comment      00000030  00000000  00000000  00000156  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000164  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000188  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000028  00000000  00000000  000001a0  2**0
+  4 .debug_aranges 00000028  00000000  00000000  000001c4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000008fa  00000000  00000000  000001c8  2**0
+  5 .debug_info   00000953  00000000  00000000  000001ec  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000830  00000000  00000000  00000ac2  2**0
+  6 .debug_abbrev 0000083d  00000000  00000000  00000b3f  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000002cf  00000000  00000000  000012f2  2**0
+  7 .debug_line   0000032b  00000000  00000000  0000137c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000034  00000000  00000000  000015c4  2**2
+  8 .debug_frame  00000034  00000000  00000000  000016a8  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000420  00000000  00000000  000015f8  2**0
+  9 .debug_str    00000420  00000000  00000000  000016dc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000006a  00000000  00000000  00001a18  2**0
+ 10 .debug_loc    000000ae  00000000  00000000  00001afc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000018  00000000  00000000  00001a82  2**0
+ 11 .debug_ranges 00000018  00000000  00000000  00001baa  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -110,7 +110,7 @@ Disassembly of section .text:
   94:	de bf       	out	0x3e, r29	; 62
   96:	cd bf       	out	0x3d, r28	; 61
   98:	11 d0       	rcall	.+34     	; 0xbc <main>
-  9a:	20 c0       	rjmp	.+64     	; 0xdc <_exit>
+  9a:	31 c0       	rjmp	.+98     	; 0xfe <_exit>
 
 0000009c <__bad_interrupt>:
   9c:	b1 cf       	rjmp	.-158    	; 0x0 <__vectors>
@@ -155,34 +155,76 @@ int main(void)
     DDRD = 0b11111111;
   bc:	8f ef       	ldi	r24, 0xFF	; 255
   be:	81 bb       	out	0x11, r24	; 17
+	unsigned char led = 0b10000000;
+  c0:	c0 e8       	ldi	r28, 0x80	; 128
 	
     while (1) 
     {
-		if (PINC & 0x01)
-  c0:	98 9b       	sbis	0x13, 0	; 19
-  c2:	0a c0       	rjmp	.+20     	; 0xd8 <main+0x1c>
+		for (int i = 0; i < 7; i++)
+  c2:	00 e0       	ldi	r16, 0x00	; 0
+  c4:	10 e0       	ldi	r17, 0x00	; 0
+  c6:	07 c0       	rjmp	.+14     	; 0xd6 <main+0x1a>
 		{
-			PORTD = 0x80;
-  c4:	80 e8       	ldi	r24, 0x80	; 128
-  c6:	82 bb       	out	0x12, r24	; 18
-			wait(100);
-  c8:	84 e6       	ldi	r24, 0x64	; 100
-  ca:	90 e0       	ldi	r25, 0x00	; 0
-  cc:	e8 df       	rcall	.-48     	; 0x9e <wait>
-			PORTD = 0x00;
-  ce:	12 ba       	out	0x12, r1	; 18
-			wait(100);
-  d0:	84 e6       	ldi	r24, 0x64	; 100
-  d2:	90 e0       	ldi	r25, 0x00	; 0
-  d4:	e4 df       	rcall	.-56     	; 0x9e <wait>
-  d6:	f4 cf       	rjmp	.-24     	; 0xc0 <main+0x4>
-		} else {
-			PORTD = 0x00;
-  d8:	12 ba       	out	0x12, r1	; 18
-  da:	f2 cf       	rjmp	.-28     	; 0xc0 <main+0x4>
+			PORTD = led;
+  c8:	c2 bb       	out	0x12, r28	; 18
+			led = (led >> 1); 
+  ca:	c6 95       	lsr	r28
+			wait(50);
+  cc:	82 e3       	ldi	r24, 0x32	; 50
+  ce:	90 e0       	ldi	r25, 0x00	; 0
+  d0:	e6 df       	rcall	.-52     	; 0x9e <wait>
+    DDRD = 0b11111111;
+	unsigned char led = 0b10000000;
+	
+    while (1) 
+    {
+		for (int i = 0; i < 7; i++)
+  d2:	0f 5f       	subi	r16, 0xFF	; 255
+  d4:	1f 4f       	sbci	r17, 0xFF	; 255
+  d6:	07 30       	cpi	r16, 0x07	; 7
+  d8:	11 05       	cpc	r17, r1
+  da:	b4 f3       	brlt	.-20     	; 0xc8 <main+0xc>
+  dc:	00 e0       	ldi	r16, 0x00	; 0
+  de:	10 e0       	ldi	r17, 0x00	; 0
+  e0:	07 c0       	rjmp	.+14     	; 0xf0 <main+0x34>
+			wait(50);
+		}
+		
+		for (int i = 0; i < 7; i++)
+		{
+			PORTD = led;
+  e2:	c2 bb       	out	0x12, r28	; 18
+			led = (led << 1); 
+  e4:	cc 0f       	add	r28, r28
+			wait(50);
+  e6:	82 e3       	ldi	r24, 0x32	; 50
+  e8:	90 e0       	ldi	r25, 0x00	; 0
+  ea:	d9 df       	rcall	.-78     	; 0x9e <wait>
+			PORTD = led;
+			led = (led >> 1); 
+			wait(50);
+		}
+		
+		for (int i = 0; i < 7; i++)
+  ec:	0f 5f       	subi	r16, 0xFF	; 255
+  ee:	1f 4f       	sbci	r17, 0xFF	; 255
+  f0:	07 30       	cpi	r16, 0x07	; 7
+  f2:	11 05       	cpc	r17, r1
+  f4:	b4 f3       	brlt	.-20     	; 0xe2 <main+0x26>
+			PORTD = led;
+			led = (led << 1); 
+			wait(50);
+		}
+		
+		wait(50);
+  f6:	82 e3       	ldi	r24, 0x32	; 50
+  f8:	90 e0       	ldi	r25, 0x00	; 0
+  fa:	d1 df       	rcall	.-94     	; 0x9e <wait>
+    }
+  fc:	e2 cf       	rjmp	.-60     	; 0xc2 <main+0x6>
 
-000000dc <_exit>:
-  dc:	f8 94       	cli
+000000fe <_exit>:
+  fe:	f8 94       	cli
 
-000000de <__stop_program>:
-  de:	ff cf       	rjmp	.-2      	; 0xde <__stop_program>
+00000100 <__stop_program>:
+ 100:	ff cf       	rjmp	.-2      	; 0x100 <__stop_program>
