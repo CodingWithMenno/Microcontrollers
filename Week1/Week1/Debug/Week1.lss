@@ -3,29 +3,29 @@ Week1.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  0000015e  2**0
+  0 .data         00000000  00800100  00800100  00000248  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         0000010a  00000000  00000000  00000054  2**1
+  1 .text         000001f4  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  0000015e  2**0
+  2 .comment      00000030  00000000  00000000  00000248  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000190  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000278  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000028  00000000  00000000  000001cc  2**0
+  4 .debug_aranges 00000040  00000000  00000000  000002b4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   0000097b  00000000  00000000  000001f4  2**0
+  5 .debug_info   00000b47  00000000  00000000  000002f4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000862  00000000  00000000  00000b6f  2**0
+  6 .debug_abbrev 000008b4  00000000  00000000  00000e3b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000311  00000000  00000000  000013d1  2**0
+  7 .debug_line   0000048d  00000000  00000000  000016ef  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000034  00000000  00000000  000016e4  2**2
+  8 .debug_frame  00000064  00000000  00000000  00001b7c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000449  00000000  00000000  00001718  2**0
+  9 .debug_str    000004c4  00000000  00000000  00001be0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    000000b3  00000000  00000000  00001b61  2**0
+ 10 .debug_loc    0000026b  00000000  00000000  000020a4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000018  00000000  00000000  00001c14  2**0
+ 11 .debug_ranges 00000030  00000000  00000000  0000230f  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -109,129 +109,411 @@ Disassembly of section .text:
   92:	d0 e1       	ldi	r29, 0x10	; 16
   94:	de bf       	out	0x3e, r29	; 62
   96:	cd bf       	out	0x3d, r28	; 61
-  98:	11 d0       	rcall	.+34     	; 0xbc <main>
-  9a:	35 c0       	rjmp	.+106    	; 0x106 <_exit>
+  98:	43 d0       	rcall	.+134    	; 0x120 <main>
+  9a:	aa c0       	rjmp	.+340    	; 0x1f0 <_exit>
 
 0000009c <__bad_interrupt>:
   9c:	b1 cf       	rjmp	.-158    	; 0x0 <__vectors>
 
-0000009e <wait>:
+0000009e <getCurrentEvent>:
+	return 1;
+}
 
-typedef enum { one, four} frequenties;
-
-void wait(int ms)
+systemEvent getCurrentEvent()
 {
-	for (int i = 0; i < ms; i++)
-  9e:	20 e0       	ldi	r18, 0x00	; 0
-  a0:	30 e0       	ldi	r19, 0x00	; 0
-  a2:	08 c0       	rjmp	.+16     	; 0xb4 <wait+0x16>
-	#else
-		//round up by default
-		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
-	#endif
+	if(PIND & 0x40){
+  9e:	86 99       	sbic	0x10, 6	; 16
+  a0:	06 c0       	rjmp	.+12     	; 0xae <getCurrentEvent+0x10>
+		return D7_EVENT;
+	}else if(PIND & 0x20){
+  a2:	85 99       	sbic	0x10, 5	; 16
+  a4:	06 c0       	rjmp	.+12     	; 0xb2 <getCurrentEvent+0x14>
+		return D6_EVENT;
+	}else if(PIND & 0x10){
+  a6:	84 9b       	sbis	0x10, 4	; 16
+  a8:	06 c0       	rjmp	.+12     	; 0xb6 <getCurrentEvent+0x18>
+		return D5_EVENT;
+  aa:	82 e0       	ldi	r24, 0x02	; 2
+  ac:	08 95       	ret
+}
 
-	__builtin_avr_delay_cycles(__ticks_dc);
-  a4:	ef ec       	ldi	r30, 0xCF	; 207
-  a6:	f7 e0       	ldi	r31, 0x07	; 7
-  a8:	31 97       	sbiw	r30, 0x01	; 1
-  aa:	f1 f7       	brne	.-4      	; 0xa8 <wait+0xa>
-  ac:	00 c0       	rjmp	.+0      	; 0xae <wait+0x10>
-  ae:	00 00       	nop
-  b0:	2f 5f       	subi	r18, 0xFF	; 255
-  b2:	3f 4f       	sbci	r19, 0xFF	; 255
-  b4:	28 17       	cp	r18, r24
-  b6:	39 07       	cpc	r19, r25
-  b8:	ac f3       	brlt	.-22     	; 0xa4 <wait+0x6>
-	{
-		_delay_ms(1);
+systemEvent getCurrentEvent()
+{
+	if(PIND & 0x40){
+		return D7_EVENT;
+  ae:	80 e0       	ldi	r24, 0x00	; 0
+  b0:	08 95       	ret
+	}else if(PIND & 0x20){
+		return D6_EVENT;
+  b2:	81 e0       	ldi	r24, 0x01	; 1
+  b4:	08 95       	ret
+	}else if(PIND & 0x10){
+		return D5_EVENT;
+	}else{
+		return NULL;
+  b6:	83 e0       	ldi	r24, 0x03	; 3
 	}
-}
-  ba:	08 95       	ret
-
-000000bc <main>:
-
-int main(void)
-{	
-	frequenties currentFreq = one;
-	bool isOne = false;
-    DDRD = 0b11111111;
-  bc:	8f ef       	ldi	r24, 0xFF	; 255
-  be:	81 bb       	out	0x11, r24	; 17
-}
-
-int main(void)
-{	
-	frequenties currentFreq = one;
-	bool isOne = false;
-  c0:	c0 e0       	ldi	r28, 0x00	; 0
-    DDRD = 0b11111111;
 	
+}
+  b8:	08 95       	ret
+
+000000ba <init>:
+
+void init(systemState state)
+{
+	switch(state)
+  ba:	82 30       	cpi	r24, 0x02	; 2
+  bc:	89 f0       	breq	.+34     	; 0xe0 <init+0x26>
+  be:	28 f4       	brcc	.+10     	; 0xca <init+0x10>
+  c0:	88 23       	and	r24, r24
+  c2:	41 f0       	breq	.+16     	; 0xd4 <init+0x1a>
+  c4:	81 30       	cpi	r24, 0x01	; 1
+  c6:	49 f0       	breq	.+18     	; 0xda <init+0x20>
+  c8:	08 95       	ret
+  ca:	83 30       	cpi	r24, 0x03	; 3
+  cc:	61 f0       	breq	.+24     	; 0xe6 <init+0x2c>
+  ce:	84 30       	cpi	r24, 0x04	; 4
+  d0:	69 f0       	breq	.+26     	; 0xec <init+0x32>
+  d2:	08 95       	ret
+	{
+		case START_STATE:
+			PORTC = 0x80;
+  d4:	80 e8       	ldi	r24, 0x80	; 128
+  d6:	85 bb       	out	0x15, r24	; 21
+			break;
+  d8:	08 95       	ret
+		case S1_STATE:
+			PORTC  = 0x40;
+  da:	80 e4       	ldi	r24, 0x40	; 64
+  dc:	85 bb       	out	0x15, r24	; 21
+			break;
+  de:	08 95       	ret
+		case S2_STATE:
+			PORTC  = 0x20;
+  e0:	80 e2       	ldi	r24, 0x20	; 32
+  e2:	85 bb       	out	0x15, r24	; 21
+			break;
+  e4:	08 95       	ret
+		case S3_STATE:
+			PORTC  = 0x10;
+  e6:	80 e1       	ldi	r24, 0x10	; 16
+  e8:	85 bb       	out	0x15, r24	; 21
+			break;
+  ea:	08 95       	ret
+		case END_STATE:
+			PORTC  = 0x08;
+  ec:	88 e0       	ldi	r24, 0x08	; 8
+  ee:	85 bb       	out	0x15, r24	; 21
+  f0:	08 95       	ret
+
+000000f2 <exitState>:
+	
+}
+
+void exitState(systemState state)
+{
+	switch(state)
+  f2:	82 30       	cpi	r24, 0x02	; 2
+  f4:	79 f0       	breq	.+30     	; 0x114 <exitState+0x22>
+  f6:	28 f4       	brcc	.+10     	; 0x102 <exitState+0x10>
+  f8:	88 23       	and	r24, r24
+  fa:	41 f0       	breq	.+16     	; 0x10c <exitState+0x1a>
+  fc:	81 30       	cpi	r24, 0x01	; 1
+  fe:	41 f0       	breq	.+16     	; 0x110 <exitState+0x1e>
+ 100:	08 95       	ret
+ 102:	83 30       	cpi	r24, 0x03	; 3
+ 104:	49 f0       	breq	.+18     	; 0x118 <exitState+0x26>
+ 106:	84 30       	cpi	r24, 0x04	; 4
+ 108:	49 f0       	breq	.+18     	; 0x11c <exitState+0x2a>
+ 10a:	08 95       	ret
+	{
+		case START_STATE:
+			PORTC  = 0x00;
+ 10c:	15 ba       	out	0x15, r1	; 21
+			break;
+ 10e:	08 95       	ret
+		case S1_STATE:
+			PORTC  = 0x00;
+ 110:	15 ba       	out	0x15, r1	; 21
+			break;
+ 112:	08 95       	ret
+		case S2_STATE:
+			PORTC  = 0x00;
+ 114:	15 ba       	out	0x15, r1	; 21
+			break;
+ 116:	08 95       	ret
+		case S3_STATE:
+			PORTC  = 0x00;
+ 118:	15 ba       	out	0x15, r1	; 21
+			break;
+ 11a:	08 95       	ret
+		case END_STATE:
+			PORTC  = 0x00;
+ 11c:	15 ba       	out	0x15, r1	; 21
+ 11e:	08 95       	ret
+
+00000120 <main>:
+void init(systemState);
+void exitState(systemState);
+
+int main(void)
+{	
+    DDRD = 0b11111111;
+ 120:	8f ef       	ldi	r24, 0xFF	; 255
+ 122:	81 bb       	out	0x11, r24	; 17
+	
+	systemState currentState = START_STATE;
+ 124:	c0 e0       	ldi	r28, 0x00	; 0
+	systemEvent newEvent = NULL;
     while (1) 
     {
-		if(PINC & 0x01)
-  c2:	98 9b       	sbis	0x13, 0	; 19
-  c4:	02 c0       	rjmp	.+4      	; 0xca <main+0xe>
-		{
-			isOne = !isOne;
-  c6:	81 e0       	ldi	r24, 0x01	; 1
-  c8:	c8 27       	eor	r28, r24
-		} 
+		newEvent = getCurrentEvent();
+ 126:	bb df       	rcall	.-138    	; 0x9e <getCurrentEvent>
 		
-		if(isOne){
-  ca:	cc 23       	and	r28, r28
-  cc:	11 f0       	breq	.+4      	; 0xd2 <main+0x16>
-			currentFreq = one;
-  ce:	80 e0       	ldi	r24, 0x00	; 0
-  d0:	01 c0       	rjmp	.+2      	; 0xd4 <main+0x18>
-		}else{
-			currentFreq = four;
-  d2:	81 e0       	ldi	r24, 0x01	; 1
+		if (newEvent == NULL)
+ 128:	83 30       	cpi	r24, 0x03	; 3
+ 12a:	e9 f3       	breq	.-6      	; 0x126 <main+0x6>
+		{
+			continue;
 		}
 		
-		
-		switch(currentFreq)
-  d4:	88 23       	and	r24, r24
-  d6:	19 f0       	breq	.+6      	; 0xde <main+0x22>
-  d8:	81 30       	cpi	r24, 0x01	; 1
-  da:	59 f0       	breq	.+22     	; 0xf2 <main+0x36>
-  dc:	f2 cf       	rjmp	.-28     	; 0xc2 <main+0x6>
+		switch(currentState)
+ 12c:	c2 30       	cpi	r28, 0x02	; 2
+ 12e:	69 f1       	breq	.+90     	; 0x18a <main+0x6a>
+ 130:	28 f4       	brcc	.+10     	; 0x13c <main+0x1c>
+ 132:	cc 23       	and	r28, r28
+ 134:	51 f0       	breq	.+20     	; 0x14a <main+0x2a>
+ 136:	c1 30       	cpi	r28, 0x01	; 1
+ 138:	c1 f0       	breq	.+48     	; 0x16a <main+0x4a>
+ 13a:	f5 cf       	rjmp	.-22     	; 0x126 <main+0x6>
+ 13c:	c3 30       	cpi	r28, 0x03	; 3
+ 13e:	09 f4       	brne	.+2      	; 0x142 <main+0x22>
+ 140:	3d c0       	rjmp	.+122    	; 0x1bc <main+0x9c>
+ 142:	c4 30       	cpi	r28, 0x04	; 4
+ 144:	09 f4       	brne	.+2      	; 0x148 <main+0x28>
+ 146:	4c c0       	rjmp	.+152    	; 0x1e0 <main+0xc0>
+ 148:	ee cf       	rjmp	.-36     	; 0x126 <main+0x6>
 		{
-			case one: 
-			PORTD = 0x80;
-  de:	80 e8       	ldi	r24, 0x80	; 128
-  e0:	82 bb       	out	0x12, r24	; 18
-			wait(1000);
-  e2:	88 ee       	ldi	r24, 0xE8	; 232
-  e4:	93 e0       	ldi	r25, 0x03	; 3
-  e6:	db df       	rcall	.-74     	; 0x9e <wait>
-			PORTD = 0x00;
-  e8:	12 ba       	out	0x12, r1	; 18
-			wait(1000);
-  ea:	88 ee       	ldi	r24, 0xE8	; 232
-  ec:	93 e0       	ldi	r25, 0x03	; 3
-  ee:	d7 df       	rcall	.-82     	; 0x9e <wait>
-			break;
-  f0:	e8 cf       	rjmp	.-48     	; 0xc2 <main+0x6>
-			
-			case four: 
-			PORTD = 0x80;
-  f2:	80 e8       	ldi	r24, 0x80	; 128
-  f4:	82 bb       	out	0x12, r24	; 18
-			wait(250);
-  f6:	8a ef       	ldi	r24, 0xFA	; 250
-  f8:	90 e0       	ldi	r25, 0x00	; 0
-  fa:	d1 df       	rcall	.-94     	; 0x9e <wait>
-			PORTD = 0x00;
-			wait(250);
-  fc:	12 ba       	out	0x12, r1	; 18
-  fe:	8a ef       	ldi	r24, 0xFA	; 250
- 100:	90 e0       	ldi	r25, 0x00	; 0
- 102:	cd df       	rcall	.-102    	; 0x9e <wait>
-			break;
- 104:	de cf       	rjmp	.-68     	; 0xc2 <main+0x6>
+			case START_STATE:
+				if (newEvent == D6_EVENT)
+ 14a:	81 30       	cpi	r24, 0x01	; 1
+ 14c:	31 f4       	brne	.+12     	; 0x15a <main+0x3a>
+				{
+					exitState(currentState);
+ 14e:	8c 2f       	mov	r24, r28
+ 150:	d0 df       	rcall	.-96     	; 0xf2 <exitState>
+					currentState = S1_STATE;
+					init(currentState);
+ 152:	81 e0       	ldi	r24, 0x01	; 1
+ 154:	b2 df       	rcall	.-156    	; 0xba <init>
+ 156:	c1 e0       	ldi	r28, 0x01	; 1
+		{
+			case START_STATE:
+				if (newEvent == D6_EVENT)
+				{
+					exitState(currentState);
+					currentState = S1_STATE;
+ 158:	e6 cf       	rjmp	.-52     	; 0x126 <main+0x6>
+ 15a:	82 30       	cpi	r24, 0x02	; 2
+					init(currentState);
+				} else if (newEvent == D5_EVENT)
+ 15c:	21 f7       	brne	.-56     	; 0x126 <main+0x6>
+				{
+					exitState(currentState);
+ 15e:	8c 2f       	mov	r24, r28
+ 160:	c8 df       	rcall	.-112    	; 0xf2 <exitState>
+					currentState = S2_STATE;
+					init(currentState);
+ 162:	82 e0       	ldi	r24, 0x02	; 2
+ 164:	aa df       	rcall	.-172    	; 0xba <init>
+ 166:	c2 e0       	ldi	r28, 0x02	; 2
+					currentState = S1_STATE;
+					init(currentState);
+				} else if (newEvent == D5_EVENT)
+				{
+					exitState(currentState);
+					currentState = S2_STATE;
+ 168:	de cf       	rjmp	.-68     	; 0x126 <main+0x6>
+					init(currentState);
+				}
+				break;	
+			case S1_STATE:
+				if(newEvent == D5_EVENT)
+ 16a:	82 30       	cpi	r24, 0x02	; 2
+				{
+					exitState(currentState);
+ 16c:	31 f4       	brne	.+12     	; 0x17a <main+0x5a>
+ 16e:	8c 2f       	mov	r24, r28
+ 170:	c0 df       	rcall	.-128    	; 0xf2 <exitState>
+					currentState = S2_STATE;
+					init(currentState);
+ 172:	82 e0       	ldi	r24, 0x02	; 2
+ 174:	a2 df       	rcall	.-188    	; 0xba <init>
+				break;	
+			case S1_STATE:
+				if(newEvent == D5_EVENT)
+				{
+					exitState(currentState);
+					currentState = S2_STATE;
+ 176:	c2 e0       	ldi	r28, 0x02	; 2
+					init(currentState);
+					
+				}else if(newEvent == D7_EVENT)
+ 178:	d6 cf       	rjmp	.-84     	; 0x126 <main+0x6>
+ 17a:	81 11       	cpse	r24, r1
+				{
+					exitState(currentState);
+ 17c:	d4 cf       	rjmp	.-88     	; 0x126 <main+0x6>
+ 17e:	8c 2f       	mov	r24, r28
+					currentState = START_STATE;
+					init(currentState);
+ 180:	b8 df       	rcall	.-144    	; 0xf2 <exitState>
+ 182:	80 e0       	ldi	r24, 0x00	; 0
+					init(currentState);
+					
+				}else if(newEvent == D7_EVENT)
+				{
+					exitState(currentState);
+					currentState = START_STATE;
+ 184:	9a df       	rcall	.-204    	; 0xba <init>
+ 186:	c0 e0       	ldi	r28, 0x00	; 0
+					init(currentState);
+				}
+				break;
+			case S2_STATE:
+				if(newEvent == D5_EVENT)
+ 188:	ce cf       	rjmp	.-100    	; 0x126 <main+0x6>
+ 18a:	82 30       	cpi	r24, 0x02	; 2
+				{
+					exitState(currentState);
+ 18c:	31 f4       	brne	.+12     	; 0x19a <main+0x7a>
+ 18e:	8c 2f       	mov	r24, r28
+					currentState = S3_STATE;
+					init(currentState);
+ 190:	b0 df       	rcall	.-160    	; 0xf2 <exitState>
+ 192:	83 e0       	ldi	r24, 0x03	; 3
+ 194:	92 df       	rcall	.-220    	; 0xba <init>
+				break;
+			case S2_STATE:
+				if(newEvent == D5_EVENT)
+				{
+					exitState(currentState);
+					currentState = S3_STATE;
+ 196:	c3 e0       	ldi	r28, 0x03	; 3
+ 198:	c6 cf       	rjmp	.-116    	; 0x126 <main+0x6>
+					init(currentState);
+				}else if(newEvent == D7_EVENT)
+ 19a:	81 11       	cpse	r24, r1
+				{
+					exitState(currentState);
+ 19c:	06 c0       	rjmp	.+12     	; 0x1aa <main+0x8a>
+ 19e:	8c 2f       	mov	r24, r28
+					currentState = START_STATE;
+					init(currentState);
+ 1a0:	a8 df       	rcall	.-176    	; 0xf2 <exitState>
+ 1a2:	80 e0       	ldi	r24, 0x00	; 0
+ 1a4:	8a df       	rcall	.-236    	; 0xba <init>
+					currentState = S3_STATE;
+					init(currentState);
+				}else if(newEvent == D7_EVENT)
+				{
+					exitState(currentState);
+					currentState = START_STATE;
+ 1a6:	c0 e0       	ldi	r28, 0x00	; 0
+ 1a8:	be cf       	rjmp	.-132    	; 0x126 <main+0x6>
+					init(currentState);
+					
+				}else if(newEvent == D6_EVENT)
+ 1aa:	81 30       	cpi	r24, 0x01	; 1
+ 1ac:	09 f0       	breq	.+2      	; 0x1b0 <main+0x90>
+				{
+					exitState(currentState);
+ 1ae:	bb cf       	rjmp	.-138    	; 0x126 <main+0x6>
+ 1b0:	8c 2f       	mov	r24, r28
+					currentState = S1_STATE;
+					init(currentState);
+ 1b2:	9f df       	rcall	.-194    	; 0xf2 <exitState>
+ 1b4:	81 e0       	ldi	r24, 0x01	; 1
+ 1b6:	81 df       	rcall	.-254    	; 0xba <init>
+					init(currentState);
+					
+				}else if(newEvent == D6_EVENT)
+				{
+					exitState(currentState);
+					currentState = S1_STATE;
+ 1b8:	c1 e0       	ldi	r28, 0x01	; 1
+					init(currentState);
+				}
+				break;
+			case S3_STATE:
+				if(newEvent == D5_EVENT || newEvent == D6_EVENT)
+ 1ba:	b5 cf       	rjmp	.-150    	; 0x126 <main+0x6>
+ 1bc:	9f ef       	ldi	r25, 0xFF	; 255
+ 1be:	98 0f       	add	r25, r24
+				{
+					exitState(currentState);
+ 1c0:	92 30       	cpi	r25, 0x02	; 2
+ 1c2:	30 f4       	brcc	.+12     	; 0x1d0 <main+0xb0>
+					currentState = END_STATE;
+					init(currentState);
+ 1c4:	8c 2f       	mov	r24, r28
+ 1c6:	95 df       	rcall	.-214    	; 0xf2 <exitState>
+				break;
+			case S3_STATE:
+				if(newEvent == D5_EVENT || newEvent == D6_EVENT)
+				{
+					exitState(currentState);
+					currentState = END_STATE;
+ 1c8:	84 e0       	ldi	r24, 0x04	; 4
+ 1ca:	77 df       	rcall	.-274    	; 0xba <init>
+					init(currentState);
+				}else if(newEvent == D7_EVENT)
+ 1cc:	c4 e0       	ldi	r28, 0x04	; 4
+ 1ce:	ab cf       	rjmp	.-170    	; 0x126 <main+0x6>
+				{
+					exitState(currentState);
+ 1d0:	81 11       	cpse	r24, r1
+ 1d2:	a9 cf       	rjmp	.-174    	; 0x126 <main+0x6>
+ 1d4:	8c 2f       	mov	r24, r28
+					currentState = START_STATE;
+					init(currentState);
+ 1d6:	8d df       	rcall	.-230    	; 0xf2 <exitState>
+ 1d8:	80 e0       	ldi	r24, 0x00	; 0
+ 1da:	6f df       	rcall	.-290    	; 0xba <init>
+					currentState = END_STATE;
+					init(currentState);
+				}else if(newEvent == D7_EVENT)
+				{
+					exitState(currentState);
+					currentState = START_STATE;
+ 1dc:	c0 e0       	ldi	r28, 0x00	; 0
+ 1de:	a3 cf       	rjmp	.-186    	; 0x126 <main+0x6>
+					init(currentState);
+				}
+				break;
+			case END_STATE:
+				if(newEvent == D7_EVENT)
+ 1e0:	81 11       	cpse	r24, r1
+ 1e2:	a1 cf       	rjmp	.-190    	; 0x126 <main+0x6>
+				{
+					exitState(currentState);
+ 1e4:	8c 2f       	mov	r24, r28
+ 1e6:	85 df       	rcall	.-246    	; 0xf2 <exitState>
+ 1e8:	80 e0       	ldi	r24, 0x00	; 0
+					currentState = START_STATE;
+					init(currentState);
+ 1ea:	67 df       	rcall	.-306    	; 0xba <init>
+ 1ec:	c0 e0       	ldi	r28, 0x00	; 0
+ 1ee:	9b cf       	rjmp	.-202    	; 0x126 <main+0x6>
 
-00000106 <_exit>:
- 106:	f8 94       	cli
+000001f0 <_exit>:
+				break;
+			case END_STATE:
+				if(newEvent == D7_EVENT)
+				{
+					exitState(currentState);
+					currentState = START_STATE;
+ 1f0:	f8 94       	cli
 
-00000108 <__stop_program>:
- 108:	ff cf       	rjmp	.-2      	; 0x108 <__stop_program>
+000001f2 <__stop_program>:
+ 1f2:	ff cf       	rjmp	.-2      	; 0x1f2 <__stop_program>
