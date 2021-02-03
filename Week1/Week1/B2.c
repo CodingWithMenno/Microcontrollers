@@ -25,17 +25,10 @@ int main(void)
 	
     while (1) 
     {
-		if (PINC & 0x01)
-		{
-			PORTD = 0x80;
-			wait(100);
-			PORTD = 0x00;
-			wait(100);
-		} else {
-			PORTD = 0x00;
-		}
+		PORTD = 0x80;
+		wait(500);
+		PORTD = 0x40;
+		wait(500);
     }
-	
-	return 1;
 }
 

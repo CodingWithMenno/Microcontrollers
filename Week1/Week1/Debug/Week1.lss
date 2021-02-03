@@ -3,21 +3,21 @@ Week1.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  0000012e  2**0
+  0 .data         00000000  00800100  00800100  00000134  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000000da  00000000  00000000  00000054  2**1
+  1 .text         000000e0  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  0000012e  2**0
+  2 .comment      00000030  00000000  00000000  00000134  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000160  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000164  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000028  00000000  00000000  0000019c  2**0
+  4 .debug_aranges 00000028  00000000  00000000  000001a0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000008fc  00000000  00000000  000001c4  2**0
+  5 .debug_info   000008fa  00000000  00000000  000001c8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000830  00000000  00000000  00000ac0  2**0
+  6 .debug_abbrev 00000830  00000000  00000000  00000ac2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000002d3  00000000  00000000  000012f0  2**0
+  7 .debug_line   000002cf  00000000  00000000  000012f2  2**0
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  00000034  00000000  00000000  000015c4  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -110,7 +110,7 @@ Disassembly of section .text:
   94:	de bf       	out	0x3e, r29	; 62
   96:	cd bf       	out	0x3d, r28	; 61
   98:	11 d0       	rcall	.+34     	; 0xbc <main>
-  9a:	1d c0       	rjmp	.+58     	; 0xd6 <_exit>
+  9a:	20 c0       	rjmp	.+64     	; 0xdc <_exit>
 
 0000009c <__bad_interrupt>:
   9c:	b1 cf       	rjmp	.-158    	; 0x0 <__vectors>
@@ -158,24 +158,31 @@ int main(void)
 	
     while (1) 
     {
-		PORTD = 0x80;
-  c0:	80 e8       	ldi	r24, 0x80	; 128
-  c2:	82 bb       	out	0x12, r24	; 18
-		wait(500);
-  c4:	84 ef       	ldi	r24, 0xF4	; 244
-  c6:	91 e0       	ldi	r25, 0x01	; 1
-  c8:	ea df       	rcall	.-44     	; 0x9e <wait>
-		PORTD = 0x40;
-  ca:	80 e4       	ldi	r24, 0x40	; 64
-  cc:	82 bb       	out	0x12, r24	; 18
-		wait(500);
-  ce:	84 ef       	ldi	r24, 0xF4	; 244
-  d0:	91 e0       	ldi	r25, 0x01	; 1
-  d2:	e5 df       	rcall	.-54     	; 0x9e <wait>
-  d4:	f5 cf       	rjmp	.-22     	; 0xc0 <main+0x4>
+		if (PINC & 0x01)
+  c0:	98 9b       	sbis	0x13, 0	; 19
+  c2:	0a c0       	rjmp	.+20     	; 0xd8 <main+0x1c>
+		{
+			PORTD = 0x80;
+  c4:	80 e8       	ldi	r24, 0x80	; 128
+  c6:	82 bb       	out	0x12, r24	; 18
+			wait(100);
+  c8:	84 e6       	ldi	r24, 0x64	; 100
+  ca:	90 e0       	ldi	r25, 0x00	; 0
+  cc:	e8 df       	rcall	.-48     	; 0x9e <wait>
+			PORTD = 0x00;
+  ce:	12 ba       	out	0x12, r1	; 18
+			wait(100);
+  d0:	84 e6       	ldi	r24, 0x64	; 100
+  d2:	90 e0       	ldi	r25, 0x00	; 0
+  d4:	e4 df       	rcall	.-56     	; 0x9e <wait>
+  d6:	f4 cf       	rjmp	.-24     	; 0xc0 <main+0x4>
+		} else {
+			PORTD = 0x00;
+  d8:	12 ba       	out	0x12, r1	; 18
+  da:	f2 cf       	rjmp	.-28     	; 0xc0 <main+0x4>
 
-000000d6 <_exit>:
-  d6:	f8 94       	cli
+000000dc <_exit>:
+  dc:	f8 94       	cli
 
-000000d8 <__stop_program>:
-  d8:	ff cf       	rjmp	.-2      	; 0xd8 <__stop_program>
+000000de <__stop_program>:
+  de:	ff cf       	rjmp	.-2      	; 0xde <__stop_program>
