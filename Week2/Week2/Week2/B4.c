@@ -18,7 +18,7 @@ typedef struct Pattern{
 	unsigned char delay;
 } segmentPattern;
 
-//Een lijst met meerdere segmenten die samen één/meerdere patronen vormen
+//Een lijst met meerdere segmenten die samen Ã©Ã©n/meerdere patronen vormen
 segmentPattern arrayPattern[] = {
 	{0x01, 40}, {0x02, 40}, {0x04, 40}, {0x08, 40}, {0x10, 40}, {0x20, 40}, {0x01, 40}, //cirkel patroon
 	{0x22, 80}, {0x14, 80}, {0x08, 80}, //druppel splitsing patroon
