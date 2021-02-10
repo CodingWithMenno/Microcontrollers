@@ -3,29 +3,29 @@ Week2.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000014  00800100  00000146  000001ba  2**0
+  0 .data         0000000a  00800100  0000018a  000001fe  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000146  00000000  00000000  00000074  2**1
+  1 .text         0000018a  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  000001ce  2**0
+  2 .comment      00000030  00000000  00000000  00000208  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000200  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000238  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000028  00000000  00000000  0000023c  2**0
+  4 .debug_aranges 00000058  00000000  00000000  00000274  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000945  00000000  00000000  00000264  2**0
+  5 .debug_info   00000a99  00000000  00000000  000002cc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000869  00000000  00000000  00000ba9  2**0
+  6 .debug_abbrev 000008ac  00000000  00000000  00000d65  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000002d9  00000000  00000000  00001412  2**0
+  7 .debug_line   00000408  00000000  00000000  00001611  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000034  00000000  00000000  000016ec  2**2
+  8 .debug_frame  000000b8  00000000  00000000  00001a1c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    0000045c  00000000  00000000  00001720  2**0
+  9 .debug_str    0000047d  00000000  00000000  00001ad4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000008e  00000000  00000000  00001b7c  2**0
+ 10 .debug_loc    0000017f  00000000  00000000  00001f51  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000018  00000000  00000000  00001c0a  2**0
+ 11 .debug_ranges 00000048  00000000  00000000  000020d0  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -114,24 +114,24 @@ Disassembly of section .text:
   98:	11 e0       	ldi	r17, 0x01	; 1
   9a:	a0 e0       	ldi	r26, 0x00	; 0
   9c:	b1 e0       	ldi	r27, 0x01	; 1
-  9e:	e6 e4       	ldi	r30, 0x46	; 70
+  9e:	ea e8       	ldi	r30, 0x8A	; 138
   a0:	f1 e0       	ldi	r31, 0x01	; 1
   a2:	00 e0       	ldi	r16, 0x00	; 0
   a4:	0b bf       	out	0x3b, r16	; 59
   a6:	02 c0       	rjmp	.+4      	; 0xac <__do_copy_data+0x14>
   a8:	07 90       	elpm	r0, Z+
   aa:	0d 92       	st	X+, r0
-  ac:	a4 31       	cpi	r26, 0x14	; 20
+  ac:	aa 30       	cpi	r26, 0x0A	; 10
   ae:	b1 07       	cpc	r27, r17
   b0:	d9 f7       	brne	.-10     	; 0xa8 <__do_copy_data+0x10>
-  b2:	11 d0       	rcall	.+34     	; 0xd6 <main>
-  b4:	46 c0       	rjmp	.+140    	; 0x142 <_exit>
+  b2:	60 d0       	rcall	.+192    	; 0x174 <main>
+  b4:	68 c0       	rjmp	.+208    	; 0x186 <_exit>
 
 000000b6 <__bad_interrupt>:
   b6:	a4 cf       	rjmp	.-184    	; 0x0 <__vectors>
 
 000000b8 <wait>:
-	return 1;
+	confirmCommand();
 }
 
 void wait(int ms)
@@ -162,88 +162,209 @@ void wait(int ms)
 	}
   d4:	08 95       	ret
 
-000000d6 <main>:
+000000d6 <confirmCommand>:
+	write_command(0x01); //Clear display
+}
 
-int main( void ) {
+void confirmCommand()
+{
+	PORTC |= (1<<LCD_E);
+  d6:	85 b3       	in	r24, 0x15	; 21
+  d8:	88 60       	ori	r24, 0x08	; 8
+  da:	85 bb       	out	0x15, r24	; 21
+	wait(1);
+  dc:	81 e0       	ldi	r24, 0x01	; 1
+  de:	90 e0       	ldi	r25, 0x00	; 0
+  e0:	eb df       	rcall	.-42     	; 0xb8 <wait>
+	PORTC &= ~(1<<LCD_E);
+  e2:	85 b3       	in	r24, 0x15	; 21
+  e4:	87 7f       	andi	r24, 0xF7	; 247
+  e6:	85 bb       	out	0x15, r24	; 21
+	wait(1);
+  e8:	81 e0       	ldi	r24, 0x01	; 1
+  ea:	90 e0       	ldi	r25, 0x00	; 0
+  ec:	e5 cf       	rjmp	.-54     	; 0xb8 <wait>
+  ee:	08 95       	ret
 
-	int index = 0;
+000000f0 <write_command>:
+		write_data(*str);
+	}
+}
+
+void write_command(unsigned char byte)
+{
+  f0:	cf 93       	push	r28
+  f2:	c8 2f       	mov	r28, r24
+	// First nibble.
+	PORTC = byte;
+  f4:	85 bb       	out	0x15, r24	; 21
+	PORTC &= ~(1<<LCD_RS);
+  f6:	85 b3       	in	r24, 0x15	; 21
+  f8:	8b 7f       	andi	r24, 0xFB	; 251
+  fa:	85 bb       	out	0x15, r24	; 21
+	confirmCommand();
+  fc:	ec df       	rcall	.-40     	; 0xd6 <confirmCommand>
+
+	// Second nibble
+	PORTC = (byte<<4);
+  fe:	c2 95       	swap	r28
+ 100:	c0 7f       	andi	r28, 0xF0	; 240
+ 102:	c5 bb       	out	0x15, r28	; 21
+	PORTC &= ~(1<<LCD_RS);
+ 104:	85 b3       	in	r24, 0x15	; 21
+ 106:	8b 7f       	andi	r24, 0xFB	; 251
+	confirmCommand();
+ 108:	85 bb       	out	0x15, r24	; 21
+ 10a:	e5 df       	rcall	.-54     	; 0xd6 <confirmCommand>
+}
+ 10c:	cf 91       	pop	r28
+ 10e:	08 95       	ret
+
+00000110 <clearDisplay>:
+	write_command(0x06); //Entry mode set
+}
+
+void clearDisplay()
+{
+	write_command(0x01); //Clear display
+ 110:	81 e0       	ldi	r24, 0x01	; 1
+ 112:	ee cf       	rjmp	.-36     	; 0xf0 <write_command>
+ 114:	08 95       	ret
+
+00000116 <init_4bits_mode>:
+
+	return 1;
+}
+
+void init_4bits_mode()
+{
+ 116:	cf 93       	push	r28
+	DDRC = 0xFF;
+ 118:	8f ef       	ldi	r24, 0xFF	; 255
+ 11a:	84 bb       	out	0x14, r24	; 20
+	PORTC = 0x00;
+ 11c:	15 ba       	out	0x15, r1	; 21
+
+	PORTC = 0x28;	// function set
+ 11e:	c8 e2       	ldi	r28, 0x28	; 40
+ 120:	c5 bb       	out	0x15, r28	; 21
+	confirmCommand();
+ 122:	d9 df       	rcall	.-78     	; 0xd6 <confirmCommand>
+
+	PORTC = 0x28;   // function set
+	confirmCommand();
+ 124:	c5 bb       	out	0x15, r28	; 21
+ 126:	d7 df       	rcall	.-82     	; 0xd6 <confirmCommand>
+	PORTC = 0x80;
+ 128:	80 e8       	ldi	r24, 0x80	; 128
+	confirmCommand();
+ 12a:	85 bb       	out	0x15, r24	; 21
+
+	clearDisplay();
+ 12c:	d4 df       	rcall	.-88     	; 0xd6 <confirmCommand>
+
+	write_command(0x0F); //Display on/off control
+ 12e:	f0 df       	rcall	.-32     	; 0x110 <clearDisplay>
+ 130:	8f e0       	ldi	r24, 0x0F	; 15
+ 132:	de df       	rcall	.-68     	; 0xf0 <write_command>
 	
-	PORTA = 0xFF; //Zet alles van poort A op output
-  d6:	8f ef       	ldi	r24, 0xFF	; 255
-  d8:	8b bb       	out	0x1b, r24	; 27
-};
+	write_command(0x06); //Entry mode set
+ 134:	86 e0       	ldi	r24, 0x06	; 6
+ 136:	dc df       	rcall	.-72     	; 0xf0 <write_command>
+ 138:	cf 91       	pop	r28
+}
+ 13a:	08 95       	ret
 
+0000013c <write_data>:
+ 13c:	cf 93       	push	r28
+	PORTC = (byte<<4);
+	PORTC &= ~(1<<LCD_RS);
+	confirmCommand();
+}
 
-int main( void ) {
+void write_data(unsigned char byte) {
+ 13e:	c8 2f       	mov	r28, r24
+	// First nibble.
+	PORTC = byte;
+ 140:	85 bb       	out	0x15, r24	; 21
+	PORTC |= (1<<LCD_RS);
+ 142:	85 b3       	in	r24, 0x15	; 21
+ 144:	84 60       	ori	r24, 0x04	; 4
+ 146:	85 bb       	out	0x15, r24	; 21
+	confirmCommand();
+ 148:	c6 df       	rcall	.-116    	; 0xd6 <confirmCommand>
 
-	int index = 0;
-  da:	c0 e0       	ldi	r28, 0x00	; 0
-  dc:	d0 e0       	ldi	r29, 0x00	; 0
-	
-	PORTA = 0xFF; //Zet alles van poort A op output
+	// Second nibble
+	PORTC = (byte<<4);
+ 14a:	c2 95       	swap	r28
+ 14c:	c0 7f       	andi	r28, 0xF0	; 240
+ 14e:	c5 bb       	out	0x15, r28	; 21
+	PORTC |= (1<<LCD_RS);
+ 150:	85 b3       	in	r24, 0x15	; 21
+ 152:	84 60       	ori	r24, 0x04	; 4
+	confirmCommand();
+ 154:	85 bb       	out	0x15, r24	; 21
+ 156:	bf df       	rcall	.-130    	; 0xd6 <confirmCommand>
+}
+ 158:	cf 91       	pop	r28
+ 15a:	08 95       	ret
 
-	while(1)
+0000015c <write_string>:
+	PORTC &= ~(1<<LCD_E);
+	wait(1);
+}
+
+void write_string(char *str) 
+{
+ 15c:	cf 93       	push	r28
+ 15e:	df 93       	push	r29
+ 160:	ec 01       	movw	r28, r24
+	for(;*str; str++)
+ 162:	02 c0       	rjmp	.+4      	; 0x168 <write_string+0xc>
 	{
-		DDRA = arrayPattern[index].data;
-  de:	fe 01       	movw	r30, r28
-  e0:	ee 0f       	add	r30, r30
-  e2:	ff 1f       	adc	r31, r31
-  e4:	e0 50       	subi	r30, 0x00	; 0
-  e6:	ff 4f       	sbci	r31, 0xFF	; 255
-  e8:	80 81       	ld	r24, Z
-  ea:	8a bb       	out	0x1a, r24	; 26
-		wait(arrayPattern[index].delay);
-  ec:	81 81       	ldd	r24, Z+1	; 0x01
-  ee:	90 e0       	ldi	r25, 0x00	; 0
-  f0:	e3 df       	rcall	.-58     	; 0xb8 <wait>
-		
-		index++;
-  f2:	21 96       	adiw	r28, 0x01	; 1
-		index %= (sizeof(arrayPattern) / sizeof(segmentPattern));
-  f4:	9e 01       	movw	r18, r28
-  f6:	ad ec       	ldi	r26, 0xCD	; 205
-  f8:	bc ec       	ldi	r27, 0xCC	; 204
-  fa:	14 d0       	rcall	.+40     	; 0x124 <__umulhisi3>
-  fc:	96 95       	lsr	r25
-  fe:	87 95       	ror	r24
- 100:	96 95       	lsr	r25
- 102:	87 95       	ror	r24
- 104:	96 95       	lsr	r25
- 106:	87 95       	ror	r24
- 108:	9c 01       	movw	r18, r24
- 10a:	22 0f       	add	r18, r18
- 10c:	33 1f       	adc	r19, r19
- 10e:	88 0f       	add	r24, r24
- 110:	99 1f       	adc	r25, r25
- 112:	88 0f       	add	r24, r24
- 114:	99 1f       	adc	r25, r25
- 116:	88 0f       	add	r24, r24
- 118:	99 1f       	adc	r25, r25
- 11a:	82 0f       	add	r24, r18
- 11c:	93 1f       	adc	r25, r19
- 11e:	c8 1b       	sub	r28, r24
- 120:	d9 0b       	sbc	r29, r25
- 122:	dd cf       	rjmp	.-70     	; 0xde <main+0x8>
+		write_data(*str);
+ 164:	eb df       	rcall	.-42     	; 0x13c <write_data>
+	wait(1);
+}
 
-00000124 <__umulhisi3>:
- 124:	a2 9f       	mul	r26, r18
- 126:	b0 01       	movw	r22, r0
- 128:	b3 9f       	mul	r27, r19
- 12a:	c0 01       	movw	r24, r0
- 12c:	a3 9f       	mul	r26, r19
- 12e:	70 0d       	add	r23, r0
- 130:	81 1d       	adc	r24, r1
- 132:	11 24       	eor	r1, r1
- 134:	91 1d       	adc	r25, r1
- 136:	b2 9f       	mul	r27, r18
- 138:	70 0d       	add	r23, r0
- 13a:	81 1d       	adc	r24, r1
- 13c:	11 24       	eor	r1, r1
- 13e:	91 1d       	adc	r25, r1
- 140:	08 95       	ret
+void write_string(char *str) 
+{
+	for(;*str; str++)
+ 166:	21 96       	adiw	r28, 0x01	; 1
+ 168:	88 81       	ld	r24, Y
+ 16a:	81 11       	cpse	r24, r1
+ 16c:	fb cf       	rjmp	.-10     	; 0x164 <write_string+0x8>
+	{
+		write_data(*str);
+	}
+}
+ 16e:	df 91       	pop	r29
+ 170:	cf 91       	pop	r28
+ 172:	08 95       	ret
 
-00000142 <_exit>:
- 142:	f8 94       	cli
+00000174 <main>:
+void clearDisplay();
 
-00000144 <__stop_program>:
- 144:	ff cf       	rjmp	.-2      	; 0x144 <__stop_program>
+
+int main( void ) {
+
+	init_4bits_mode();
+ 174:	d0 df       	rcall	.-96     	; 0x116 <init_4bits_mode>
+	
+	write_string("Test");
+ 176:	80 e0       	ldi	r24, 0x00	; 0
+ 178:	91 e0       	ldi	r25, 0x01	; 1
+	clearDisplay();
+ 17a:	f0 df       	rcall	.-32     	; 0x15c <write_string>
+	write_string("hoi");
+ 17c:	c9 df       	rcall	.-110    	; 0x110 <clearDisplay>
+ 17e:	85 e0       	ldi	r24, 0x05	; 5
+ 180:	91 e0       	ldi	r25, 0x01	; 1
+ 182:	ec df       	rcall	.-40     	; 0x15c <write_string>
+ 184:	ff cf       	rjmp	.-2      	; 0x184 <main+0x10>
+
+00000186 <_exit>:
+ 186:	f8 94       	cli
+
+00000188 <__stop_program>:
+ 188:	ff cf       	rjmp	.-2      	; 0x188 <__stop_program>

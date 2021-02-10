@@ -2,6 +2,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include "lcd.h"
 
 #define LCD_E 3
 #define LCD_RS 2
@@ -9,24 +10,6 @@
 void confirmCommand();
 void write_command(unsigned char);
 void write_data(unsigned char);
-void init();
-void set_cursor(int);
-void display_text(char *str);
-
-int main(void)
-{
-	init();
-	
-	set_cursor(5);
-	display_text("hoi");
-	
-	while(1)
-	{
-		
-	}
-	
-	return 1;
-}
 
 void init()
 {
@@ -62,7 +45,7 @@ void confirmCommand()
 }
 
 void display_text(char *str)
-{
+{	
 	for(;*str; str++)
 	{
 		write_data(*str);
