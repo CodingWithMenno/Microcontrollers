@@ -2,33 +2,15 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include "B5/lcd.h"
+#include "lcd.h"
 
 #define LCD_E 3
 #define LCD_RS 2
 
-void confirmCommand();
-void write_command(unsigned char);
-void write_data(unsigned char);
-void init();
-void display_text(char *str);
-void set_cursor(int position);
-void clearDisplay();
-void wait(int);
-
-int main(void)
-{
-	init();
-	set_cursor(0);
-	display_text("hey");
-	
-	while (1)
-	{
-		wait(10);
-	}
-	
-	return 1;
-}
+static void confirmCommand();
+static void write_command(unsigned char);
+static void write_data(unsigned char);
+static void wait(int);
 
 void init()
 {
@@ -55,7 +37,7 @@ void clearDisplay()
 	write_command(0x01); //Clear display
 }
 
-void confirmCommand()
+static void confirmCommand()
 {
 	PORTC |= (1<<LCD_E);
 	wait(1);
@@ -64,7 +46,7 @@ void confirmCommand()
 }
 
 void display_text(char *str)
-{
+{	
 	for(;*str; str++)
 	{
 		write_data(*str);
@@ -76,7 +58,7 @@ void set_cursor(int position)
 	write_command(0x80 + position);
 }
 
-void write_command(unsigned char byte)
+static void write_command(unsigned char byte)
 {
 	// First nibble.
 	PORTC = byte;
@@ -89,7 +71,7 @@ void write_command(unsigned char byte)
 	confirmCommand();
 }
 
-void write_data(unsigned char byte) {
+static void write_data(unsigned char byte) {
 	// First nibble.
 	PORTC = byte;
 	PORTC |= (1<<LCD_RS);
@@ -101,7 +83,7 @@ void write_data(unsigned char byte) {
 	confirmCommand();
 }
 
-void wait(int ms)
+static void wait(int ms)
 {
 	for (int i = 0; i < ms; i++)
 	{
