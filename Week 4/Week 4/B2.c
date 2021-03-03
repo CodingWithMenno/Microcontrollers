@@ -11,7 +11,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include "lcd.h"
 
 void wait(int);
 
@@ -19,36 +18,45 @@ void wait(int);
 
 int main(void)
 {
-	init();
-	
-	//Port F word input en A output
+	//Port F word input en A en B output
 	DDRF = 0x00;
 	DDRA = 0xff;
 	DDRB = 0xff;
 	
+	DDRC = 0x00;
+	DDRD = 0xff;
 	
-	//6e bit staat uit (ADLAR (telt vanaf 0 t/m 10))
+	
+	//6e bit staat aan (ADLAR (telt vanaf 6 t/m 15))
 	//De eerste 4 bits zijn voor het selecteren van welke input channel
-	ADMUX = 0b11000011;
+	ADMUX = 0b01100011;
 	
 	//Laatste bit is om de adc te enablen
 	//1 na laatste is om een conversie te starten op de adc
 	//6e bit is freerunning mode
 	//Eerste 3 bits is voor de prescaler
-	ADCSRA = 0b11100110;
+	ADCSRA = 0b10000110;
 	
-	char lcdText[50] = " ";
 	
 	while (1) 
 	{ 
-		//Reken de ADCL input om naar graden celcius
-		int degrees = (int) (ADCL / 2.56);
-		sprintf(lcdText, "Graden: %d", degrees);
-		PORTA = ADCL;
-		PORTB = ADCH;
-		display_text(lcdText);
-		wait(1000);
-		clearDisplay();
+		//Controleer voor een button input
+		if (PINC & 0x01)
+		{
+			//Forceer een conversie start
+			ADCSRA |= BIT(6);
+			while (ADCSRA & BIT(6))
+			{	
+				PORTD = 0xff;
+				
+				//Zet de laatste bits (8 t/m 15) in port b
+				PORTB = ADCH;
+			}
+			
+			PORTD = 0x00;
+		}
+		
+		wait(100); 
 	}
 	
 	return 1;
