@@ -120,4 +120,3 @@ int main()
 	wait(1000);
 	return (1);
 }
-
