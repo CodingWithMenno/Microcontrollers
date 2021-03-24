@@ -9,26 +9,21 @@
 
 void wait(int ms);
 
-// Extern variable to the servo angle, value between 0-180 (defined in servo.h)
+// Extern variable to the servo angle, value between 250-1500 (defined in servo.h)
 int servo_targetValue;
 
 
 int main( void )
 {
 	servo1_init();
-	wait(1000);
+	//wait(1000);
 	
 	while (1)
-	{
-		if(servo_targetValue == 180)
-		{
-			servo_targetValue = 0;
-		} else
-		{
-			servo_targetValue = 180;
-		}
-
-		wait(5000);
+	{		
+		servo_targetValue = 250;
+		wait(10000);
+		servo_targetValue = 1500;
+		wait(10000);
 	}
 	
 	return 1;

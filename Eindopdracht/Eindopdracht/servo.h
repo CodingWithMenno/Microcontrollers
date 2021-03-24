@@ -1,7 +1,7 @@
 #ifndef SERVO_H
 #define SERVO_H
 
-// The angle the servo needs to go to, value between 0-180
+// The angle the servo needs to go to, value between 250-1500
 extern int servo_targetValue;
 
 /*
