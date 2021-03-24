@@ -21,14 +21,7 @@ int main( void )
 	servo_init();
 	
 	while (1)
-	{		
-		//servo1_targetValue = 180;
-		//servo2_targetValue = 0;
-		//wait(10000);
-		//servo1_targetValue = 0;
-		//servo2_targetValue = 180;
-		//wait(10000);
-		
+	{				
 		servo1_targetValue = 90;
 		servo2_targetValue = 90;
 	}
