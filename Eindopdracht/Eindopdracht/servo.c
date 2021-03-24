@@ -23,7 +23,7 @@ ISR(TIMER1_COMPA_vect)
 	const float speed = 1;
 	static float currentValue = startValue1;
 	
-	// Maps the value from 0-180 to 250-1500 (frequency of the servo)
+	// Maps the value from 0-180 to 250-1300 (frequency of the servo)
 	float targetValue = map(servo1_targetValue, 250, 1300);
 	
 	if (currentValue < targetValue)
@@ -64,7 +64,7 @@ void servo_init()
 	sei();						// Turn on interrupt system
 	
 	ICR1 = 10000;				// Sets the upper limit to timer 1
-	TCCR1A = 0b10100010;		// Set OC1B as output
+	TCCR1A = 0b10100010;		// Set OC1A and OC1B as output
 	TCCR1B = 0b00010010;		// fast PWM 8 bit, prescaler=8, RUN
 }
 
