@@ -17,13 +17,20 @@ int servo2_targetValue;
 
 int main( void )
 {
-	DDRB = 0xFF;				// Set whole port B as output
+	// Set the in and outputs at PORTB
+	DDRB = 0xFF;
 	servo_init();
+
 	
 	while (1)
-	{				
-		servo1_targetValue = 90;
-		servo2_targetValue = 90;
+	{
+		servo1_targetValue = 180;
+		servo2_targetValue = 180;
+		wait(10000);
+		
+		servo1_targetValue = 0;
+		servo2_targetValue = 0;
+		wait(10000);
 	}
 	
 	return 1;
