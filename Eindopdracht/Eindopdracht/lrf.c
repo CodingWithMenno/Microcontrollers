@@ -7,8 +7,7 @@
 #include <avr/io.h>
 #include "lrf.h"
 
-#define FOSC 8000000// Clock Speed
-#define BAUD 9600
+#define FOSC 8000000 // Clock Speed
 #define MYUBRR FOSC/16/BAUD-1
 
 void USART_Init( unsigned int ubrr )
@@ -62,7 +61,7 @@ void USART_Receive_String(char* data)
 	data[i] = '\0';
 }
 
-int onlyNumbers(char* data)
+int USART_onlyNumbers(char* data)
 {
 	char subArray[5];
 		for (int i = 0; i < 4; i++)
