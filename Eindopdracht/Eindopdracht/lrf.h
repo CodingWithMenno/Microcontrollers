@@ -8,6 +8,9 @@
 #define LRF_H
 
 #define BAUD 9600
+#define FOSC 8000000 // Clock Speed
+#define MYUBRR FOSC/16/BAUD-1
+
 #define SINGLE_RANGE_COMMAND_A 'R'
 #define SINGLE_RANGE_COMMAND_B 'A'
 

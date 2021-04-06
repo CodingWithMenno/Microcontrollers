@@ -2,6 +2,10 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+lcd.c
+
+lrf.c
+
 main.c
 
 servo.c

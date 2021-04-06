@@ -5,10 +5,8 @@
  *  Author: timoj
  */ 
 #include <avr/io.h>
+#include <stdio.h>
 #include "lrf.h"
-
-#define FOSC 8000000 // Clock Speed
-#define MYUBRR FOSC/16/BAUD-1
 
 void USART_Init( unsigned int ubrr )
 {

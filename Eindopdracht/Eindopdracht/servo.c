@@ -10,7 +10,7 @@ double map(double, int, int);
 
 // Start value of the servo
 static const int startValue1 = 250;
-static const int startValue2 = 250;
+static const int startValue2 = 1300;
 
 // Extern variables for the servo target values
 int servo1_targetValue;
@@ -56,8 +56,8 @@ void servo_init()
 	OCR1A = startValue1;		// Sets the compare value of timer 1, (this is linked to port B5)
 	OCR1B = startValue2;		// Sets the compare value of timer 1, (this is linked to port B6)
 	
-	servo1_targetValue = startValue1;
-	servo2_targetValue = startValue2;
+	servo1_targetValue = 0;
+	servo2_targetValue = 180;
 	
 	TIMSK |= 1<<(3);			// Turn on compare mode for channel A
 	TIMSK |= 1<<(4);			// Turn on compare mode for channel B
