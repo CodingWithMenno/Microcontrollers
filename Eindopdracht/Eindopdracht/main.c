@@ -11,8 +11,7 @@
 
 #define BIT(x) 1<<(x)
 
-void wait(int ms);
-
+static void wait(int);
 
 struct CAMERA_SETTING
 {
@@ -21,21 +20,15 @@ struct CAMERA_SETTING
 	int zoom; // Servo 2
 };
 
-/*
-	Servo-Distance table:
-	150 distance =  105 servo 1, 180 servo 2
-	675 distance = 44 servo 1, 80 servo 2
-	1200 distance = 40 servo 1, 30 servo 2
-*/
-
-static int totalCameraSegments = 3;
+static int totalCameraSegments = 5;
 static struct CAMERA_SETTING cameraSettings[] = 
 {
 	{ 150, 105, 180 },
+	{ 450, 95, 140 },
 	{ 675, 44, 80 },
+	{ 900, 42, 75 },
 	{ 1200, 40, 30 }
 };
-
 
 // Extern variable to the servo1 angle (angle between 0 and 110 (safe angles))
 int servo1_targetValue;
@@ -43,7 +36,7 @@ int servo1_targetValue;
 int servo2_targetValue;
 
 
-int main( void )
+int main(void)
 {
 	DDRB = 0xFF; // Set whole port B as output
 	
@@ -95,7 +88,7 @@ int main( void )
 	return 1;
 }
 
-void wait(int ms)
+static void wait(int ms)
 {
 	for (int tms=0; tms<ms; tms++)
 		_delay_ms(1);
